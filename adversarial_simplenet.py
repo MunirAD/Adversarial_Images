@@ -47,11 +47,11 @@ def train_NN():
     model['W'] = sess.run(W)
     model['b'] = sess.run(b)
 
-    with open('model3_verysimple.pkl', 'w') as fp:
+    with open('basic_model.pkl', 'w') as fp:
         pickle.dump(model, fp)
 
 def get_visuals():
-    with open('model3_verysimple.pkl', 'r') as fp:
+    with open('basic_model.pkl', 'r') as fp:
         model = pickle.load(fp)
     visualizeWeights(model['W'], 'shit/')
 
@@ -62,17 +62,17 @@ def visualizeWeights(W, save_dir):
         gray_scale_img = W[:,i].reshape((28, 28))
         heatmap = ax.imshow(gray_scale_img, cmap = mpl.cm.coolwarm)
         fig.colorbar(heatmap, shrink = 0.5, aspect=5)
-        #plt.show()
-        file_name = save_dir + "heatmap"+ str(i) + ".pdf"
-        fig.savefig(file_name)
+        plt.show()
+        #file_name = save_dir + "heatmap"+ str(i) + ".pdf"
+        #fig.savefig(file_name)
 
 def adversarial(inp, faker_class):
-    with open('model3_verysimple.pkl', 'r') as fp:
+    with open('basic_model.pkl', 'r') as fp:
         model = pickle.load(fp)
 
     this_x = np.reshape(inp,(1, 784))
 
-    this_x += 1000*model['W'][:,faker_class]
+    #this_x += 1000*model['W'][:,faker_class]
 
     x = tf.placeholder(tf.float32, shape=[None, 784])
 
@@ -84,14 +84,20 @@ def adversarial(inp, faker_class):
     o = tf.nn.relu(tf.matmul(x, W) + b)
     y = tf.nn.softmax(o)
 
+    #gradients = tf.nn.relu(tf.gradients(o, x))
+
     init = tf.initialize_all_variables()
     sess = tf.Session()
     sess.run(init)
-
+    '''
+    grads = sess.run(gradients, feed_dict={x:this_x})
+    print grads[0].shape
+    this_x += 1*grads[0]
+    '''
     prob = sess.run(y, feed_dict={x: this_x})
     return np.argmax(prob)
 
 #train_NN()
 #get_visuals()
-print adversarial(mnist.train.images[0], 3)
+print adversarial(mnist.train.images[0], 9)
 print np.argmax(mnist.train.labels[0])
