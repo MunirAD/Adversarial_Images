@@ -98,7 +98,6 @@ def adversarial(inp, faker_class):
         new_this_x = this_x + epsi_times_grad
         plot_one(new_this_x)
         new_x = tf.placeholder(tf.float32, shape=[None, 784])
-        new_x_image = tf.reshape(x, [-1,28,28,1])
         new_o = tf.nn.relu(tf.matmul(new_x, W) + b)
         new_y = tf.nn.softmax(new_o)
 
